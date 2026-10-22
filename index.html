@@ -31,6 +31,7 @@
           will-change:transform; backface-visibility:hidden; transform-origin:50% 0;
           transition:transform .62s var(--ease), opacity .3s ease; box-shadow:0 -1px 0 rgba(255,255,255,.08), 0 6px 18px rgba(0,0,0,.5); }
   .card.leaving { opacity:0; }
+  .face-img { background:#2c2c2e; }
   .face-img img { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
   .face-img .label { position:absolute; left:14px; bottom:12px; font-size:15px; font-weight:600; text-shadow:0 1px 3px rgba(0,0,0,.6); }
   .shine { position:absolute; top:-50%; left:0; width:38%; height:200%; pointer-events:none; mix-blend-mode:soft-light;
@@ -181,6 +182,11 @@
       { i:'J', c:'#5e5ce6', t:'An Jonas', s:'Gestern · Kino', a:-12.5 },
       { i:'M', c:'#ff375f', t:'Von Mama', s:'Sonntag · Taschengeld', a:50 },
       { i:'T', c:'#64d2ff', t:'An Tim', s:'Freitag · Tanken', a:-20 } ] },
+    { id:'express', type:'img', img:'luna-express.webp', name:'Luna Express', num:'•••• 0067', balance:52380, label:'Kontostand', side:['Mitglied seit', '1967'], action:'Bezahlen', tx:[
+      { i:'✈', c:'#0a84ff', t:'Lufthansa First Class', s:'Heute · München → New York', a:-8950 },
+      { i:'H', c:'#e8742b', t:'Hermès', s:'Gestern · Paris', a:-4200 },
+      { i:'%', c:'#30d158', t:'Cashback', s:'Mittwoch · Prämie', a:312.4 },
+      { i:'B', c:'#8e8e93', t:'Hotel Budersand', s:'Sonntag · Sylt', a:-2180 } ] },
     { id:'luna', type:'img', img:'luna-card.svg', name:'Luna Platin', num:'•••• 1967', balance:148920, label:'Kontostand', side:['Verfügbar', 'Kein Limit'], action:'Bezahlen', tx:[
       { i:'P', c:'#b8860b', t:'Porsche Zentrum', s:'Heute · 911 GT3', a:-25000 },
       { i:'↗', c:'#30d158', t:'NVIDIA Aktien', s:'Gestern · 120 Stück', a:-16380 },
@@ -219,7 +225,7 @@
   try { custom = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { custom = []; }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(custom)); return true; } catch (e) { return false; } };
 
-  const allCards = () => [BUILTIN[0], ...custom.map(c => ({ ...c, type:'img', label:'Kontostand', side:['Verfügbar', money(Math.round(c.balance * 1.6))], action:'Bezahlen', custom:true })), BUILTIN[1]];
+  const allCards = () => [BUILTIN[0], BUILTIN[1], ...custom.map(c => ({ ...c, type:'img', label:'Kontostand', side:['Verfügbar', money(Math.round(c.balance * 1.6))], action:'Bezahlen', custom:true })), BUILTIN[2]];
 
   function faceHTML(c) {
     if (c.type === 'cash') return '<div class="holo"><div class="dots"><div class="move"><div class="spin"></div></div></div></div>'
