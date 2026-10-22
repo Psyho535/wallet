@@ -45,14 +45,16 @@
   .route .ap:last-child { text-align:right; }
   .plane { flex:1; margin:0 10px 14px; height:1px; position:relative; background:repeating-linear-gradient(90deg, var(--pg) 0 4px, transparent 4px 8px); }
   .plane::after { content:"✈"; position:absolute; left:50%; top:50%; transform:translate(-50%,-55%); color:var(--pg); font-size:16px; background:var(--pc); padding:0 6px; }
-  .pass-bot { position:absolute; left:16px; right:16px; bottom:14px; display:grid; grid-template-columns:1.5fr 1fr .7fr 1fr; gap:6px; }
+  .card.face-pass { transition:transform .62s var(--ease), opacity .35s ease, height .55s var(--ease); }
+  .card.dim { opacity:0; pointer-events:none; }
+  .pass-bot { margin-top:calc(var(--ch) - 152px); display:grid; grid-template-columns:1.5fr 1fr .7fr 1fr; gap:6px; }
   .pass-bot b { font-size:13px; }
-  .qrbox { background:#fff; border-radius:16px; padding:18px; display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:16px; }
-  .qrbox svg { width:170px; height:170px; display:block; }
-  .qrbox small { font-size:12px; color:#6e6e73; letter-spacing:1px; }
-  .info { background:#1c1c1e; border-radius:14px; display:grid; grid-template-columns:1fr 1fr; overflow:hidden; }
-  .info div { padding:11px 14px; border-top:.5px solid #2c2c2e; } .info div:nth-child(-n+2) { border-top:0; }
-  .info small { display:block; color:#8e8e93; font-size:12px; } .info b { font-size:15px; font-weight:600; }
+  .pass-more { margin-top:18px; padding-top:14px; border-top:1px dashed rgba(255,255,255,.28); }
+  .pass-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px 8px; }
+  .pass-grid b { font-size:13px; }
+  .pass-qr { width:min(170px, 46vw); margin:20px auto 0; background:#fff; border-radius:12px; padding:10px; }
+  .pass-qr svg { width:100%; height:auto; display:block; }
+  .pass-cap { text-align:center; font-size:11px; letter-spacing:1.2px; color:rgba(255,255,255,.7); margin-top:8px; }
   .card { position:absolute; top:0; left:50%; margin-left:calc(var(--cw) / -2); width:var(--cw); height:var(--ch); border-radius:calc(var(--cw) * .046); overflow:hidden;
           will-change:transform; backface-visibility:hidden; transform-origin:50% 0;
           transition:transform .62s var(--ease), opacity .3s ease; box-shadow:0 -1px 0 rgba(255,255,255,.08), 0 6px 18px rgba(0,0,0,.5); }
@@ -284,7 +286,11 @@
       + '<div class="route"><span class="ap"><b>' + c.from[0] + '</b><small>' + esc(c.from[1]) + ' · ' + c.dep + '</small></span><span class="plane"></span>'
       + '<span class="ap"><b>' + c.to[0] + '</b><small>' + esc(c.to[1]) + ' · ' + c.arr + '</small></span></div>'
       + '<div class="pass-bot"><span class="kv"><small>Passagier</small><b>' + esc(c.pax) + '</b></span><span class="kv"><small>Klasse</small><b>' + c.cls + '</b></span>'
-      + '<span class="kv"><small>Sitz</small><b>' + c.seat + '</b></span><span class="kv"><small>Boarding</small><b>' + c.board + '</b></span></div>';
+      + '<span class="kv"><small>Sitz</small><b>' + c.seat + '</b></span><span class="kv"><small>Boarding</small><b>' + c.board + '</b></span></div>'
+      + '<div class="pass-more"><div class="pass-grid">'
+      + [['Flug', c.flight], ['Datum', c.date], ['Dauer', c.dur], ['Terminal', c.term], ['Gepäck', c.bag], ['Lounge', c.lounge]]
+          .map(([k, v]) => '<span class="kv"><small>' + k + '</small><b>' + esc(v) + '</b></span>').join('')
+      + '</div><div class="pass-qr">' + qrSVG(c.flight + c.seat) + '</div><div class="pass-cap">' + c.flight + ' · SITZ ' + c.seat + '</div></div>';
     if (c.type === 'cash') return '<div class="holo"><div class="dots"><div class="move"><div class="spin"></div></div></div></div>'
       + '<div class="sheen"><div class="move"></div></div><span class="n">Cash</span><span class="v">' + money(c.balance) + '</span>';
     return '<img' + (c.rot ? ' class="rot"' : '') + ' src="' + esc(c.img) + '" alt="' + esc(c.name) + '"><div class="shine"></div>';
@@ -323,13 +329,17 @@
     spacer.style.height = total + 'px';
     const st = stack.scrollTop;
     const bottom = st + stack.clientHeight - 64;
+    // Ticket offen: es wird lang, alles andere blendet aus und bleibt liegen
+    const passOpen = selected && selected.classList.contains('face-pass');
     if (selected) {
-      detail.style.top = (st + h + 20) + 'px';
-      detail.style.height = (stack.clientHeight - h - 20) + 'px';
+      const sh = passOpen ? parseFloat(selected.style.height) : h;
+      detail.style.top = (st + sh + 20) + 'px';
+      detail.style.height = (stack.clientHeight - sh - 20) + 'px';
     }
     els.forEach((c, i) => {
       let y, s = 1, z = i + 1, delay = 0;
-      if (selected === null) {
+      c.classList.toggle('dim', !!passOpen && c !== selected);
+      if (selected === null || (passOpen && c !== selected)) {
         const pi = passEls.indexOf(c);
         y = pi < 0 ? cardEls.indexOf(c) * peek : passStart + pi * peek;
         delay = (els.length - 1 - i) * 30;
@@ -349,15 +359,9 @@
     if (!animate) { void stack.offsetWidth; els.forEach(c => c.style.transition = ''); }
   }
 
-  function renderPass(c) {
-    const f = (k, v) => '<div><small>' + k + '</small><b>' + esc(v) + '</b></div>';
-    detail.innerHTML = '<div class="meta"><div><small>Bulldog Airways · ' + c.flight + '</small><span class="bal">' + c.from[0] + ' → ' + c.to[0] + '</span></div>'
-      + '<small style="text-align:right">' + c.date + '<br>' + c.dur + '</small></div>'
-      + '<div class="qrbox">' + qrSVG(c.flight + c.seat) + '<small>' + c.flight + ' · SITZ ' + c.seat + ' · ' + c.cls.toUpperCase() + '</small></div>'
-      + '<div class="info">' + f('Abflug', c.from[1] + ' ' + c.dep) + f('Ankunft', c.to[1] + ' ' + c.arr) + f('Terminal', c.term) + f('Gate', c.gate)
-      + f('Boarding', c.board) + f('Sitz', c.seat) + f('Klasse', c.cls + ' Class') + f('Gepäck', c.bag) + f('Lounge', c.lounge) + f('Passagier', c.pax) + '</div>'
-      + '<div class="actions" style="margin-top:16px"><button data-act="back" style="grid-column:1/-1">Fertig</button></div>';
-    detail.scrollTop = 0;
+  // Beim offenen Ticket steht alles im Ticket selbst – darunter nur der Fertig-Knopf
+  function renderPass() {
+    detail.innerHTML = '<div class="actions"><button data-act="back" style="grid-column:1/-1">Fertig</button></div>';
   }
 
   function renderDetail(c) {
@@ -382,6 +386,8 @@
   }
 
   function select(el) {
+    if (selected && selected !== el) selected.style.height = '';
+    if (el && el.classList.contains('face-pass')) el.style.height = Math.min(el.scrollHeight + 6, stack.clientHeight - 70) + 'px';
     selected = el;
     if (el) renderDetail(data[els.indexOf(el)]);
     layout();
