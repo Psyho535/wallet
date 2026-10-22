@@ -120,11 +120,14 @@
   .row .amt { font-weight:500; white-space:nowrap; } .row .amt.in { color:#30d158; }
   .remove { display:block; width:100%; margin-top:18px; background:#1c1c1e; color:#ff453a; border:0; border-radius:14px; padding:14px; font-size:16px; }
 
-  .pay-layer { position:absolute; inset:0; background:#000; z-index:25; display:flex; flex-direction:column; align-items:center; padding-top:calc(var(--top) + 40px);
-               opacity:0; visibility:hidden; transition:opacity .4s var(--ease), visibility 0s .4s; }
-  .pay-layer.on { opacity:1; visibility:visible; transition:opacity .35s var(--ease); }
+  /* Bezahlen: Die Karte selbst gleitet von ihrer Stelle nach oben – nur der Hintergrund blendet, die Karte nie */
+  .pay-layer { position:absolute; inset:0; z-index:25; isolation:isolate; display:flex; flex-direction:column; align-items:center; padding-top:calc(var(--top) + 40px);
+               visibility:hidden; transition:visibility 0s .55s; }
+  .pay-layer::before { content:""; position:absolute; inset:0; z-index:-1; background:#000; opacity:0; transition:opacity .45s var(--ease); }
+  .pay-layer.on { visibility:visible; transition:none; }
+  .pay-layer.on::before { opacity:1; }
   .pay-layer .pc { position:relative; width:var(--cw); height:var(--ch); border-radius:calc(var(--cw) * .046); overflow:hidden; will-change:transform;
-                   transform:translate3d(0,40px,0) scale(.94); transition:transform .7s var(--ease); box-shadow:0 12px 34px rgba(0,0,0,.7); }
+                   transform:var(--from, none); transition:transform .6s var(--ease); box-shadow:0 12px 34px rgba(0,0,0,.7); }
   .pay-layer.on .pc { transform:none; }
   .pay-layer.on.done .pc { animation:thud .45s var(--ease); }
   .face { margin-top:16vh; width:80px; height:80px; opacity:0; transform:scale(.85); will-change:transform, opacity;
@@ -461,18 +464,33 @@
   const payCard = document.getElementById('payCard');
   let timers = [];
   const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+  let payingEl = null;
   function closePay() {
+    if (!pay.classList.contains('on')) return;
     timers.forEach(clearTimeout); timers = [];
-    pay.classList.remove('on', 'scan');           // Haken bleibt sichtbar, während alles ausblendet
-    later(450, () => pay.className = 'pay-layer');
+    pay.classList.remove('on', 'scan');           // Karte gleitet zurück, Haken bleibt sichtbar, Hintergrund blendet aus
+    later(600, () => {
+      pay.className = 'pay-layer';
+      if (payingEl) payingEl.style.visibility = '';
+      payingEl = null;
+    });
   }
   function startPay(el) {
     timers.forEach(clearTimeout); timers = [];
+    if (payingEl) payingEl.style.visibility = '';
     const c = data[els.indexOf(el)];
     payCard.className = 'pc face-' + c.type;
     payCard.innerHTML = faceHTML(c).replace('<div class="shine"></div>', '');
     pay.className = 'pay-layer';
-    void pay.offsetWidth;
+    // Startpunkt = genau dort, wo die Karte gerade liegt (ohne Animation hinsetzen)
+    payCard.style.transition = 'none';
+    payCard.style.setProperty('--from', 'none');
+    const from = el.getBoundingClientRect(), to = payCard.getBoundingClientRect();
+    payCard.style.setProperty('--from', 'translate3d(' + (from.left - to.left) + 'px,' + (from.top - to.top) + 'px,0)');
+    void payCard.offsetWidth;
+    payCard.style.transition = '';
+    payingEl = el;
+    el.style.visibility = 'hidden';
     pay.className = 'pay-layer on';
     later(450, () => pay.className = 'pay-layer on scan');
     later(1750, () => pay.className = 'pay-layer on done');
