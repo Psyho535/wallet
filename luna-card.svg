@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 856 540" width="856" height="540">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3f3f5"/>
+      <stop offset=".25" stop-color="#c9cbd0"/>
+      <stop offset=".5" stop-color="#eeeff1"/>
+      <stop offset=".75" stop-color="#bfc1c7"/>
+      <stop offset="1" stop-color="#e4e5e8"/>
+    </linearGradient>
+    <pattern id="brush" width="856" height="3" patternUnits="userSpaceOnUse">
+      <rect width="856" height="1" fill="#ffffff" opacity=".35"/>
+      <rect y="2" width="856" height="1" fill="#8a8c92" opacity=".12"/>
+    </pattern>
+    <radialGradient id="medal" cx=".5" cy=".4" r=".7">
+      <stop offset="0" stop-color="#fbfbfc"/>
+      <stop offset="1" stop-color="#d6d7db"/>
+    </radialGradient>
+    <linearGradient id="chip" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6dc8a"/>
+      <stop offset=".5" stop-color="#d9b04f"/>
+      <stop offset="1" stop-color="#f0d27a"/>
+    </linearGradient>
+    <g id="f5"><ellipse cy="-11" rx="7" ry="11"/><ellipse cy="-11" rx="7" ry="11" transform="rotate(72)"/><ellipse cy="-11" rx="7" ry="11" transform="rotate(144)"/><ellipse cy="-11" rx="7" ry="11" transform="rotate(216)"/><ellipse cy="-11" rx="7" ry="11" transform="rotate(288)"/></g>
+    <g id="f8"><ellipse cy="-12" rx="4.5" ry="12"/><ellipse cy="-12" rx="4.5" ry="12" transform="rotate(45)"/><ellipse cy="-12" rx="4.5" ry="12" transform="rotate(90)"/><ellipse cy="-12" rx="4.5" ry="12" transform="rotate(135)"/><ellipse cy="-12" rx="4.5" ry="12" transform="rotate(180)"/><ellipse cy="-12" rx="4.5" ry="12" transform="rotate(225)"/><ellipse cy="-12" rx="4.5" ry="12" transform="rotate(270)"/><ellipse cy="-12" rx="4.5" ry="12" transform="rotate(315)"/></g>
+    <g id="leaf"><path d="M0 0 C 8 -10, 8 -24, 0 -34 C -8 -24, -8 -10, 0 0 Z" fill="#4f9a6a"/><path d="M0 -2 V -30" stroke="#2f6b45" stroke-width="1.5"/></g>
+  </defs>
+
+  <rect width="856" height="540" rx="38" fill="url(#metal)"/>
+  <rect width="856" height="540" rx="38" fill="url(#brush)"/>
+
+  <g fill="none" stroke="#9fa1a8" stroke-width="1.2" opacity=".45">
+    <path d="M40 120 Q 140 80 240 120 T 440 120 T 640 120 T 840 120"/>
+    <path d="M40 150 Q 140 110 240 150 T 440 150 T 640 150 T 840 150"/>
+    <path d="M40 180 Q 140 140 240 180 T 440 180 T 640 180 T 840 180"/>
+    <path d="M40 330 Q 140 290 240 330 T 440 330 T 640 330 T 840 330"/>
+    <path d="M40 360 Q 140 320 240 360 T 440 360 T 640 360 T 840 360"/>
+    <path d="M40 390 Q 140 350 240 390 T 440 390 T 640 390 T 840 390"/>
+  </g>
+
+  <rect x="18" y="18" width="820" height="504" rx="24" fill="none" stroke="#232326" stroke-width="7"/>
+  <rect x="32" y="32" width="792" height="476" rx="16" fill="none" stroke="#232326" stroke-width="1.5" stroke-dasharray="2 5"/>
+
+  <text x="70" y="112" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="66" letter-spacing="10" fill="#202022">LUNA</text>
+  <text x="74" y="146" font-family="Arial, Helvetica, sans-serif" font-size="20" letter-spacing="9" fill="#4a4b50">PLATIN</text>
+
+  <rect x="72" y="200" width="86" height="66" rx="12" fill="url(#chip)" stroke="#a9852f" stroke-width="1.5"/>
+  <path d="M72 233h86M101 200v66M129 200v66M101 222h28M101 244h28" stroke="#a9852f" stroke-width="1.5" fill="none"/>
+  <g fill="none" stroke="#3a3b40" stroke-width="4" stroke-linecap="round" transform="translate(186 233)">
+    <path d="M0 -14 a 20 20 0 0 1 0 28"/><path d="M12 -24 a 34 34 0 0 1 0 48"/><path d="M24 -34 a 48 48 0 0 1 0 68"/>
+  </g>
+
+  <g transform="translate(470 262)">
+    <ellipse rx="128" ry="168" fill="url(#medal)" stroke="#232326" stroke-width="6"/>
+    <ellipse rx="114" ry="154" fill="none" stroke="#232326" stroke-width="1.5"/>
+    <g transform="scale(1.22) translate(0 4)" stroke="#232326" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M-58 -30 C -92 -52, -110 -96, -96 -116 C -70 -122, -36 -92, -16 -56 Z" fill="#cfcac0"/>
+      <path d="M58 -30 C 92 -52, 110 -96, 96 -116 C 70 -122, 36 -92, 16 -56 Z" fill="#cfcac0"/>
+      <path d="M-58 -44 C -82 -62, -96 -90, -88 -106 C -70 -108, -46 -84, -32 -60 Z" fill="#e8b4b0" stroke-width="1.5"/>
+      <path d="M58 -44 C 82 -62, 96 -90, 88 -106 C 70 -108, 46 -84, 32 -60 Z" fill="#e8b4b0" stroke-width="1.5"/>
+      <path d="M-66 10 C -70 -34, -40 -62, 0 -62 C 40 -62, 70 -34, 66 10 C 64 50, 36 76, 0 76 C -36 76, -64 50, -66 10 Z" fill="#dcd7cd"/>
+      <path d="M-22 -40 q 22 -9 44 0 M-14 -30 q 14 -6 28 0" fill="none" stroke-width="2"/>
+      <ellipse cx="-27" cy="-6" rx="11" ry="12" fill="#202022"/>
+      <ellipse cx="27" cy="-6" rx="11" ry="12" fill="#202022"/>
+      <circle cx="-23" cy="-10" r="3.2" fill="#fff" stroke="none"/>
+      <circle cx="31" cy="-10" r="3.2" fill="#fff" stroke="none"/>
+      <path d="M-40 18 C -40 2, -20 -2, 0 -2 C 20 -2, 40 2, 40 18 C 40 42, 22 54, 0 54 C -22 54, -40 42, -40 18 Z" fill="#f0ece5"/>
+      <path d="M-15 8 q 15 -10 30 0 q -3 13 -15 14 q -12 -1 -15 -14 Z" fill="#202022"/>
+      <path d="M0 22 v 9 M-20 33 q 10 10 20 -2 q 10 12 20 2" fill="none" stroke-width="2.6"/>
+      <path d="M-58 30 q -6 14 0 26 M58 30 q 6 14 0 26" fill="none" stroke-width="2"/>
+      <path d="M-46 80 C -30 92, 30 92, 46 80 L 52 96 C 30 108, -30 108, -52 96 Z" fill="#d4537e"/>
+      <circle cx="0" cy="100" r="8" fill="#f2c12e" stroke-width="2.4"/>
+    </g>
+  </g>
+
+  <g>
+    <path d="M590 500 C 600 430, 640 380, 700 330" fill="none" stroke="#3f8a5a" stroke-width="3"/>
+    <path d="M660 500 C 680 440, 720 400, 770 380" fill="none" stroke="#3f8a5a" stroke-width="3"/>
+    <path d="M760 500 C 770 420, 790 330, 800 250" fill="none" stroke="#3f8a5a" stroke-width="3"/>
+    <path d="M720 300 C 740 240, 770 190, 800 150" fill="none" stroke="#3f8a5a" stroke-width="3"/>
+    <path d="M300 500 C 290 460, 270 430, 240 410" fill="none" stroke="#3f8a5a" stroke-width="3"/>
+    <path d="M370 500 C 380 470, 400 450, 420 440" fill="none" stroke="#3f8a5a" stroke-width="3"/>
+    <path d="M110 500 C 120 470, 150 450, 180 445" fill="none" stroke="#3f8a5a" stroke-width="3"/>
+    <use href="#leaf" transform="translate(620 430) rotate(-50)"/>
+    <use href="#leaf" transform="translate(650 395) rotate(40)"/>
+    <use href="#leaf" transform="translate(705 435) rotate(-35)"/>
+    <use href="#leaf" transform="translate(780 350) rotate(30)"/>
+    <use href="#leaf" transform="translate(760 230) rotate(-40)"/>
+    <use href="#leaf" transform="translate(285 465) rotate(-60)"/>
+    <use href="#leaf" transform="translate(390 465) rotate(50)"/>
+    <use href="#leaf" transform="translate(140 465) rotate(60)"/>
+    <use href="#f5" fill="#e66fa0" transform="translate(700 330) scale(1.5)"/><circle cx="700" cy="330" r="8" fill="#f2c12e"/>
+    <use href="#f8" fill="#6f9fdc" transform="translate(770 380) scale(1.2)"/><circle cx="770" cy="380" r="6" fill="#f2c12e"/>
+    <use href="#f5" fill="#f08a3c" transform="translate(800 250) scale(1.1)"/><circle cx="800" cy="250" r="6" fill="#ffe08a"/>
+    <use href="#f8" fill="#8fb6ea" transform="translate(800 150) scale(1.1)"/><circle cx="800" cy="150" r="5" fill="#f2c12e"/>
+    <use href="#f5" fill="#f2c12e" transform="translate(240 410) scale(1.2)"/><circle cx="240" cy="410" r="6" fill="#f08a3c"/>
+    <use href="#f5" fill="#f2c12e" transform="translate(420 440)"/><circle cx="420" cy="440" r="5" fill="#f08a3c"/>
+    <use href="#f8" fill="#e66fa0" transform="translate(180 445) scale(.9)"/><circle cx="180" cy="445" r="5" fill="#f2c12e"/>
+    <use href="#f5" fill="#6f9fdc" transform="translate(640 470) scale(.8)"/><circle cx="640" cy="470" r="4" fill="#f2c12e"/>
+  </g>
+
+  <text x="72" y="476" font-family="Menlo, Consolas, monospace" font-size="26" letter-spacing="4" fill="#2a2b2f">•••• 1967</text>
+</svg>
