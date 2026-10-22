@@ -400,9 +400,14 @@
     im.onload = () => {
       const W = 856, H = 540, cv = document.createElement('canvas');
       cv.width = W; cv.height = H;
-      const r = Math.max(W / im.naturalWidth, H / im.naturalHeight);
-      const w = im.naturalWidth * r, h = im.naturalHeight * r;
-      cv.getContext('2d').drawImage(im, (W - w) / 2, (H - h) / 2, w, h);
+      const g = cv.getContext('2d');
+      // Hochkant-Karten (Schrift läuft von oben nach unten) um 90° nach links drehen, damit sie quer liegen
+      const portrait = im.naturalHeight > im.naturalWidth;
+      const iw = portrait ? im.naturalHeight : im.naturalWidth, ih = portrait ? im.naturalWidth : im.naturalHeight;
+      const r = Math.max(W / iw, H / ih);
+      g.translate(W / 2, H / 2);
+      if (portrait) g.rotate(-Math.PI / 2);
+      g.drawImage(im, -im.naturalWidth * r / 2, -im.naturalHeight * r / 2, im.naturalWidth * r, im.naturalHeight * r);
       picked = cv.toDataURL('image/jpeg', 0.82);
       pick.style.backgroundImage = 'url(' + picked + ')';
       pick.classList.add('has');
