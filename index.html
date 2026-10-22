@@ -40,14 +40,20 @@
   .shine.follow { animation:none; }
   @keyframes sweep { 0%,55% { transform:translate3d(-140%,0,0) rotate(20deg); } 100% { transform:translate3d(300%,0,0) rotate(20deg); } }
 
-  .face-cash { background:#1c1c1e; padding:14px 16px; }
-  .face-cash .n, .face-cash .v { font-size:16px; font-weight:600; } .face-cash .v { position:absolute; top:14px; right:16px; }
-  .face-cash .dots { position:absolute; bottom:-30px; right:-20px; width:170px; height:170px; border-radius:50%; background:radial-gradient(circle, #3a3a3c 1.5px, transparent 2px) 0 0/10px 10px; opacity:.8; }
-  .face-ticket { background:#f4f1ea; color:#1c1c1e; padding:14px 16px; }
-  .face-ticket .n { font-size:16px; font-weight:600; } .face-ticket .v { position:absolute; top:15px; right:16px; font-size:13px; color:#6e6e73; }
-  .face-ticket .strip { position:absolute; left:0; right:0; top:50px; height:6px; background:#d62d2d; }
-  .face-ticket .qr { position:absolute; right:16px; bottom:16px; width:68px; height:68px; background:
-      conic-gradient(#1c1c1e 25%, transparent 0 50%, #1c1c1e 0 75%, transparent 0) 0 0/17px 17px; border:5px solid #fff; outline:1px solid #ddd; }
+  /* Cash: helle Perlmutt-Karte mit Regenbogen-Punktfeld, das sich beim Neigen/Wischen bewegt */
+  .face-cash { background:linear-gradient(160deg, #fbfbfd, #eceef2 60%, #f6f6f9); color:#1c1c1e; padding:14px 16px; }
+  .face-cash .n { position:relative; font-size:20px; font-weight:700; letter-spacing:-.3px; }
+  .face-cash .v { position:absolute; top:16px; right:16px; font-size:16px; font-weight:600; }
+  .holo, .holo .dots, .sheen { position:absolute; inset:0; pointer-events:none; }
+  .holo { -webkit-mask-image:radial-gradient(ellipse 85% 95% at 72% 62%, #000 25%, transparent 72%); mask-image:radial-gradient(ellipse 85% 95% at 72% 62%, #000 25%, transparent 72%); }
+  .holo .dots { -webkit-mask-image:radial-gradient(circle, #000 1.9px, transparent 2.5px); -webkit-mask-size:9px 9px;
+                mask-image:radial-gradient(circle, #000 1.9px, transparent 2.5px); mask-size:9px 9px; }
+  .move { position:absolute; inset:-60%; will-change:transform; transform:translate3d(var(--hx, 0px), var(--hy, 0px), 0); transition:transform .35s cubic-bezier(.2,.8,.2,1); }
+  .spin { position:absolute; inset:0; will-change:transform; animation:spin 10s linear infinite;
+          background:conic-gradient(#ff3b30, #ff9500, #ffcc00, #34c759, #5ac8fa, #007aff, #af52de, #ff2d55, #ff3b30); }
+  .sheen { overflow:hidden; mix-blend-mode:soft-light; opacity:.55; }
+  .sheen .move { background:linear-gradient(115deg, transparent 35%, #ff9ad5 42%, #ffe58a 47%, #9cf5c4 52%, #8ec5ff 57%, #c79bff 62%, transparent 70%); }
+  @keyframes spin { to { transform:rotate(360deg); } }
 
   .detail { position:absolute; top:calc(var(--ch) + 20px); left:50%; width:var(--cw); margin-left:calc(var(--cw) / -2); bottom:0; overflow-y:auto;
             padding-bottom:calc(var(--bottom) + 110px); -webkit-overflow-scrolling:touch; scrollbar-width:none;
@@ -175,11 +181,6 @@
       { i:'J', c:'#5e5ce6', t:'An Jonas', s:'Gestern · Kino', a:-12.5 },
       { i:'M', c:'#ff375f', t:'Von Mama', s:'Sonntag · Taschengeld', a:50 },
       { i:'T', c:'#64d2ff', t:'An Tim', s:'Freitag · Tanken', a:-20 } ] },
-    { id:'ticket', type:'ticket', name:'Deutschlandticket', valid:'31.10.2026', label:'Gültig bis', side:['Preis', '58 € / Monat'], action:'Ticket zeigen', trips:[
-      { t:'München Hbf → Augsburg Hbf', s:'Heute · 07:42', r:'RE 9' },
-      { t:'Augsburg Hbf → München Hbf', s:'Gestern · 17:15', r:'RB 87' },
-      { t:'Marienplatz → Sendlinger Tor', s:'Montag · 12:03', r:'U3' },
-      { t:'München Ost → Flughafen', s:'Samstag · 05:58', r:'S8' } ] },
     { id:'luna', type:'img', img:'luna-card.svg', name:'Luna Platin', num:'•••• 1967', balance:148920, label:'Kontostand', side:['Verfügbar', 'Kein Limit'], action:'Bezahlen', tx:[
       { i:'P', c:'#b8860b', t:'Porsche Zentrum', s:'Heute · 911 GT3', a:-25000 },
       { i:'↗', c:'#30d158', t:'NVIDIA Aktien', s:'Gestern · 120 Stück', a:-16380 },
@@ -218,12 +219,12 @@
   try { custom = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { custom = []; }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(custom)); return true; } catch (e) { return false; } };
 
-  const allCards = () => [...BUILTIN.slice(0, 2), ...custom.map(c => ({ ...c, type:'img', label:'Kontostand', side:['Verfügbar', money(Math.round(c.balance * 1.6))], action:'Bezahlen', custom:true })), BUILTIN[2]];
+  const allCards = () => [BUILTIN[0], ...custom.map(c => ({ ...c, type:'img', label:'Kontostand', side:['Verfügbar', money(Math.round(c.balance * 1.6))], action:'Bezahlen', custom:true })), BUILTIN[1]];
 
   function faceHTML(c) {
-    if (c.type === 'cash') return '<div class="dots"></div><span class="n">Cash</span><span class="v">' + money(c.balance) + '</span>';
-    if (c.type === 'ticket') return '<span class="n">Deutschlandticket</span><span class="v">Okt 2026</span><div class="strip"></div><div class="qr"></div>';
-    return '<img src="' + esc(c.img) + '" alt="' + esc(c.name) + '">' + (c.custom ? '<span class="label">' + esc(c.name) + '</span>' : '') + '<div class="shine"></div>';
+    if (c.type === 'cash') return '<div class="holo"><div class="dots"><div class="move"><div class="spin"></div></div></div></div>'
+      + '<div class="sheen"><div class="move"></div></div><span class="n">Cash</span><span class="v">' + money(c.balance) + '</span>';
+    return '<img src="' + esc(c.img) + '" alt="' + esc(c.name) + '"><div class="shine"></div>';
   }
 
   const stack = document.getElementById('stack');
@@ -274,14 +275,10 @@
 
   function renderDetail(c) {
     let h = '<div class="meta"><div><small>' + esc(c.name) + (c.num ? ' ' + c.num : '') + '</small><span class="bal">'
-          + (c.type === 'ticket' ? c.valid : money(c.balance)) + '</span></div>'
+          + money(c.balance) + '</span></div>'
           + '<small style="text-align:right">' + esc(c.label) + '<br>' + esc(c.side[0]) + ': ' + esc(c.side[1]) + '</small></div>'
           + '<div class="actions"><button class="primary" data-act="pay">' + esc(c.action) + '</button><button data-act="back">Fertig</button></div>';
-    if (c.type === 'ticket') {
-      h += '<div class="txh">Letzte Fahrten</div><div class="tx">' + c.trips.map(t =>
-        '<div class="row"><span class="ico" style="background:#d62d2d">' + (t.r.startsWith('U') ? 'U' : t.r.startsWith('S') ? 'S' : 'R') + '</span><span class="w"><span>'
-        + esc(t.t) + '</span><small>' + esc(t.s) + '</small></span><span class="amt">' + esc(t.r) + '</span></div>').join('') + '</div>';
-    } else {
+    {
       const inSum = c.tx.filter(t => t.a > 0).reduce((s, t) => s + t.a, 0);
       const outSum = c.tx.filter(t => t.a < 0).reduce((s, t) => s + t.a, 0);
       h += '<div class="txh">Letzte Transaktionen</div>'
@@ -429,6 +426,23 @@
     layout(false);
     setTimeout(() => select(els[data.findIndex(c => c.id === card.id)]), 350);
   };
+
+  // Regenbogen folgt dem Neigen des Handys (oder dem Finger/der Maus)
+  const root = document.documentElement;
+  const setTilt = (x, y) => { root.style.setProperty('--hx', x.toFixed(1) + 'px'); root.style.setProperty('--hy', y.toFixed(1) + 'px'); };
+  const clamp = (v, m) => Math.max(-m, Math.min(m, v));
+  addEventListener('deviceorientation', e => {
+    if (e.gamma == null) return;
+    setTilt(clamp(e.gamma, 35) * -2.4, clamp(e.beta - 45, 35) * -2.4);
+  });
+  addEventListener('pointermove', e => {
+    if (e.pointerType === 'mouse' || e.buttons) setTilt((e.clientX / innerWidth - .5) * -160, (e.clientY / innerHeight - .5) * -160);
+  });
+  // iPhone fragt beim ersten Tippen einmal nach Zugriff auf die Bewegungssensoren
+  addEventListener('pointerdown', function ask() {
+    removeEventListener('pointerdown', ask);
+    if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') DeviceOrientationEvent.requestPermission().catch(() => {});
+  });
 
   build();
   layout(false);
