@@ -32,7 +32,8 @@
           transition:transform .62s var(--ease), opacity .3s ease; box-shadow:0 -1px 0 rgba(255,255,255,.08), 0 6px 18px rgba(0,0,0,.5); }
   .card.leaving { opacity:0; }
   .face-img { background:#2c2c2e; }
-  .face-img img { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
+  .face-img img { width:100%; height:100%; object-fit:fill; display:block; pointer-events:none; }
+  .face-img img.rot { position:absolute; left:50%; top:50%; width:var(--ch); height:var(--cw); transform:translate(-50%,-50%) rotate(-90deg); }
   .face-img .label { position:absolute; left:14px; bottom:12px; font-size:15px; font-weight:600; text-shadow:0 1px 3px rgba(0,0,0,.6); }
   .shine { position:absolute; top:-50%; left:0; width:38%; height:200%; pointer-events:none; mix-blend-mode:soft-light;
            background:linear-gradient(90deg, transparent, rgba(255,255,255,.9) 50%, transparent);
@@ -187,6 +188,11 @@
       { i:'H', c:'#e8742b', t:'Hermès', s:'Gestern · Paris', a:-4200 },
       { i:'%', c:'#30d158', t:'Cashback', s:'Mittwoch · Prämie', a:312.4 },
       { i:'B', c:'#8e8e93', t:'Hotel Budersand', s:'Sonntag · Sylt', a:-2180 } ] },
+    { id:'black', type:'img', img:'luna-black.webp', rot:true, name:'Luna Express Black', num:'•••• 0001', balance:1287450, label:'Kontostand', side:['Verfügbar', 'Unbegrenzt'], action:'Bezahlen', tx:[
+      { i:'B', c:'#1c3f94', t:'Bugatti Molsheim', s:'Heute · Anzahlung', a:-250000 },
+      { i:'✈', c:'#5e5ce6', t:'Privatjet', s:'Gestern · Nizza → München', a:-38000 },
+      { i:'€', c:'#30d158', t:'Dividende NVIDIA', s:'Donnerstag', a:12480 },
+      { i:'R', c:'#0b6e4f', t:'Rolex Boutique', s:'Montag · Daytona', a:-32900 } ] },
     { id:'luna', type:'img', img:'luna-card.svg', name:'Luna Platin', num:'•••• 1967', balance:148920, label:'Kontostand', side:['Verfügbar', 'Kein Limit'], action:'Bezahlen', tx:[
       { i:'P', c:'#b8860b', t:'Porsche Zentrum', s:'Heute · 911 GT3', a:-25000 },
       { i:'↗', c:'#30d158', t:'NVIDIA Aktien', s:'Gestern · 120 Stück', a:-16380 },
@@ -225,12 +231,12 @@
   try { custom = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { custom = []; }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(custom)); return true; } catch (e) { return false; } };
 
-  const allCards = () => [BUILTIN[0], BUILTIN[1], ...custom.map(c => ({ ...c, type:'img', label:'Kontostand', side:['Verfügbar', money(Math.round(c.balance * 1.6))], action:'Bezahlen', custom:true })), BUILTIN[2]];
+  const allCards = () => [BUILTIN[0], BUILTIN[1], BUILTIN[2], ...custom.map(c => ({ ...c, type:'img', label:'Kontostand', side:['Verfügbar', money(Math.round(c.balance * 1.6))], action:'Bezahlen', custom:true })), BUILTIN[3]];
 
   function faceHTML(c) {
     if (c.type === 'cash') return '<div class="holo"><div class="dots"><div class="move"><div class="spin"></div></div></div></div>'
       + '<div class="sheen"><div class="move"></div></div><span class="n">Cash</span><span class="v">' + money(c.balance) + '</span>';
-    return '<img src="' + esc(c.img) + '" alt="' + esc(c.name) + '"><div class="shine"></div>';
+    return '<img' + (c.rot ? ' class="rot"' : '') + ' src="' + esc(c.img) + '" alt="' + esc(c.name) + '"><div class="shine"></div>';
   }
 
   const stack = document.getElementById('stack');
@@ -407,10 +413,14 @@
       // Hochkant-Karten (Schrift läuft von oben nach unten) um 90° nach links drehen, damit sie quer liegen
       const portrait = im.naturalHeight > im.naturalWidth;
       const iw = portrait ? im.naturalHeight : im.naturalWidth, ih = portrait ? im.naturalWidth : im.naturalHeight;
+      // Fast kartenförmige Bilder ganz einpassen (Rand bleibt dran), alles andere zuschneiden
       const r = Math.max(W / iw, H / ih);
+      const near = (iw / ih) / (W / H) > 0.85 && (iw / ih) / (W / H) < 1.15;
+      const sx = near ? W / iw : r, sy = near ? H / ih : r;
+      const a = portrait ? sy : sx, b = portrait ? sx : sy;
       g.translate(W / 2, H / 2);
       if (portrait) g.rotate(-Math.PI / 2);
-      g.drawImage(im, -im.naturalWidth * r / 2, -im.naturalHeight * r / 2, im.naturalWidth * r, im.naturalHeight * r);
+      g.drawImage(im, -im.naturalWidth * a / 2, -im.naturalHeight * b / 2, im.naturalWidth * a, im.naturalHeight * b);
       picked = cv.toDataURL('image/jpeg', 0.82);
       pick.style.backgroundImage = 'url(' + picked + ')';
       pick.classList.add('has');
