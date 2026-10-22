@@ -26,7 +26,33 @@
   .round { width:34px; height:34px; border-radius:50%; background:#1c1c1e; display:grid; place-items:center; color:#fff; font-size:21px; border:0; transition:transform .15s; }
   .round:active { transform:scale(.9); }
 
-  .stack { position:absolute; top:calc(var(--top) + 72px); left:0; right:0; bottom:0; }
+  .stack { position:absolute; top:calc(var(--top) + 72px); left:0; right:0; bottom:0; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .stack::-webkit-scrollbar { display:none; }
+  .stack.sel { overflow:hidden; }
+  .spacer { position:absolute; top:0; left:0; width:1px; pointer-events:none; }
+
+  /* Bordkarten – Bulldog Airways ist eine erfundene Fluggesellschaft */
+  .face-pass { background:var(--pc); color:#fff; padding:14px 16px; }
+  .face-pass::before { content:""; position:absolute; left:0; right:0; top:0; height:3px; background:var(--pg); }
+  .pass-top { display:flex; justify-content:space-between; align-items:flex-start; }
+  .air { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; letter-spacing:1.6px; color:var(--pg); padding-top:2px; }
+  .air i { width:26px; height:26px; border-radius:50%; border:1.5px solid var(--pg); display:grid; place-items:center; font-style:normal; font-size:13px; }
+  .kv small { display:block; font-size:9.5px; letter-spacing:1.2px; color:rgba(255,255,255,.6); text-transform:uppercase; }
+  .kv b { font-size:15px; font-weight:600; } .pass-top .kv { text-align:right; }
+  .route { display:flex; align-items:center; justify-content:space-between; margin-top:12px; }
+  .route .ap b { display:block; font-size:38px; font-weight:300; letter-spacing:1px; line-height:1.05; }
+  .route .ap small { font-size:11px; color:rgba(255,255,255,.7); }
+  .route .ap:last-child { text-align:right; }
+  .plane { flex:1; margin:0 10px 14px; height:1px; position:relative; background:repeating-linear-gradient(90deg, var(--pg) 0 4px, transparent 4px 8px); }
+  .plane::after { content:"✈"; position:absolute; left:50%; top:50%; transform:translate(-50%,-55%); color:var(--pg); font-size:16px; background:var(--pc); padding:0 6px; }
+  .pass-bot { position:absolute; left:16px; right:16px; bottom:14px; display:grid; grid-template-columns:1.5fr 1fr .7fr 1fr; gap:6px; }
+  .pass-bot b { font-size:13px; }
+  .qrbox { background:#fff; border-radius:16px; padding:18px; display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:16px; }
+  .qrbox svg { width:170px; height:170px; display:block; }
+  .qrbox small { font-size:12px; color:#6e6e73; letter-spacing:1px; }
+  .info { background:#1c1c1e; border-radius:14px; display:grid; grid-template-columns:1fr 1fr; overflow:hidden; }
+  .info div { padding:11px 14px; border-top:.5px solid #2c2c2e; } .info div:nth-child(-n+2) { border-top:0; }
+  .info small { display:block; color:#8e8e93; font-size:12px; } .info b { font-size:15px; font-weight:600; }
   .card { position:absolute; top:0; left:50%; margin-left:calc(var(--cw) / -2); width:var(--cw); height:var(--ch); border-radius:calc(var(--cw) * .046); overflow:hidden;
           will-change:transform; backface-visibility:hidden; transform-origin:50% 0;
           transition:transform .62s var(--ease), opacity .3s ease; box-shadow:0 -1px 0 rgba(255,255,255,.08), 0 6px 18px rgba(0,0,0,.5); }
@@ -57,7 +83,7 @@
   .sheen .move { background:linear-gradient(115deg, transparent 35%, #ff9ad5 42%, #ffe58a 47%, #9cf5c4 52%, #8ec5ff 57%, #c79bff 62%, transparent 70%); }
   @keyframes spin { to { transform:rotate(360deg); } }
 
-  .detail { position:absolute; top:calc(var(--ch) + 20px); left:50%; width:var(--cw); margin-left:calc(var(--cw) / -2); bottom:0; overflow-y:auto;
+  .detail { position:absolute; top:0; left:50%; width:var(--cw); margin-left:calc(var(--cw) / -2); overflow-y:auto;
             padding-bottom:calc(var(--bottom) + 110px); -webkit-overflow-scrolling:touch; scrollbar-width:none;
             opacity:0; transform:translate3d(0,24px,0); will-change:transform, opacity; pointer-events:none;
             transition:opacity .25s ease, transform .5s var(--ease); }
@@ -133,6 +159,7 @@
 <body>
 <div class="app">
   <div class="stack" id="stack">
+    <div class="spacer" id="spacer"></div>
     <div class="detail" id="detail"></div>
   </div>
   <div class="head">
@@ -231,9 +258,33 @@
   try { custom = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { custom = []; }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(custom)); return true; } catch (e) { return false; } };
 
-  const allCards = () => [BUILTIN[0], BUILTIN[1], BUILTIN[2], ...custom.map(c => ({ ...c, type:'img', label:'Kontostand', side:['Verfügbar', money(Math.round(c.balance * 1.6))], action:'Bezahlen', custom:true })), BUILTIN[3]];
+  // Bordkarten einer erfundenen Airline – der QR-Code ist nur ein Muster ohne Inhalt
+  const PASSES = [
+    { id:'f1', type:'pass', pc:'#0f1d3a', pg:'#d4af37', flight:'BDA 001', from:['MUC', 'München'], to:['JFK', 'New York'], date:'14. Nov 2026', dur:'8 Std 15 Min',
+      dep:'15:40', arr:'18:55', term:'2', gate:'K12', board:'14:50', seat:'1A', cls:'First', pax:'LUNA MEMBER', bag:'3 × 32 kg', lounge:'First Lounge K' },
+    { id:'f2', type:'pass', pc:'#3d0d1c', pg:'#e8c27a', flight:'BDA 077', from:['MUC', 'München'], to:['DXB', 'Dubai'], date:'2. Dez 2026', dur:'5 Std 35 Min',
+      dep:'21:05', arr:'05:40 +1', term:'2', gate:'H27', board:'20:15', seat:'2K', cls:'First', pax:'LUNA MEMBER', bag:'3 × 32 kg', lounge:'First Lounge H' }
+  ];
+
+  const allCards = () => [BUILTIN[0], BUILTIN[1], BUILTIN[2], ...custom.map(c => ({ ...c, type:'img', label:'Kontostand', side:['Verfügbar', money(Math.round(c.balance * 1.6))], action:'Bezahlen', custom:true })), BUILTIN[3], ...PASSES];
+
+  function qrSVG(seed) {
+    let x = 7;
+    for (const ch of seed) x = (x * 31 + ch.charCodeAt(0)) >>> 0;
+    const rnd = () => { x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return x / 4294967296; };
+    const n = 25, inFinder = (i, j) => (i < 8 && j < 8) || (i > n - 9 && j < 8) || (i < 8 && j > n - 9);
+    let cells = '';
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (!inFinder(i, j) && rnd() < .5) cells += '<rect x="' + i + '" y="' + j + '" width="1" height="1"/>';
+    const finder = (a, b) => '<rect x="' + a + '" y="' + b + '" width="7" height="7"/><rect x="' + (a + 1) + '" y="' + (b + 1) + '" width="5" height="5" fill="#fff"/><rect x="' + (a + 2) + '" y="' + (b + 2) + '" width="3" height="3"/>';
+    return '<svg viewBox="-1 -1 27 27" shape-rendering="crispEdges" fill="#1c1c1e">' + finder(0, 0) + finder(n - 7, 0) + finder(0, n - 7) + cells + '</svg>';
+  }
 
   function faceHTML(c) {
+    if (c.type === 'pass') return '<div class="pass-top"><span class="air"><i>✈</i>BULLDOG AIRWAYS</span><span class="kv"><small>Gate</small><b>' + esc(c.gate) + '</b></span></div>'
+      + '<div class="route"><span class="ap"><b>' + c.from[0] + '</b><small>' + esc(c.from[1]) + ' · ' + c.dep + '</small></span><span class="plane"></span>'
+      + '<span class="ap"><b>' + c.to[0] + '</b><small>' + esc(c.to[1]) + ' · ' + c.arr + '</small></span></div>'
+      + '<div class="pass-bot"><span class="kv"><small>Passagier</small><b>' + esc(c.pax) + '</b></span><span class="kv"><small>Klasse</small><b>' + c.cls + '</b></span>'
+      + '<span class="kv"><small>Sitz</small><b>' + c.seat + '</b></span><span class="kv"><small>Boarding</small><b>' + c.board + '</b></span></div>';
     if (c.type === 'cash') return '<div class="holo"><div class="dots"><div class="move"><div class="spin"></div></div></div></div>'
       + '<div class="sheen"><div class="move"></div></div><span class="n">Cash</span><span class="v">' + money(c.balance) + '</span>';
     return '<img' + (c.rot ? ' class="rot"' : '') + ' src="' + esc(c.img) + '" alt="' + esc(c.name) + '"><div class="shine"></div>';
@@ -241,6 +292,7 @@
 
   const stack = document.getElementById('stack');
   const detail = document.getElementById('detail');
+  const spacer = document.getElementById('spacer');
   let data = [], els = [], selected = null;
 
   function build() {
@@ -249,6 +301,7 @@
     els = data.map(c => {
       const el = document.createElement('div');
       el.className = 'card face-' + c.type;
+      if (c.type === 'pass') { el.style.setProperty('--pc', c.pc); el.style.setProperty('--pg', c.pg); }
       el.innerHTML = faceHTML(c);
       el.addEventListener('click', () => select(selected === el ? null : el));
       stack.insertBefore(el, detail);
@@ -261,21 +314,32 @@
   function layout(animate = true) {
     if (!animate) els.forEach(c => c.style.transition = 'none');
     const h = els[0].offsetHeight;
-    const room = stack.clientHeight - h - 40;
-    const peek = Math.max(36, Math.min(Math.round(h * 0.32), Math.floor(room / Math.max(1, els.length - 1))));
-    const bottom = stack.clientHeight - 64;
+    const peek = Math.round(h * 0.3);
+    // zwei Stapel wie im echten Wallet: oben Karten, darunter die Bordkarten
+    const cardEls = els.filter((e, i) => data[i].type !== 'pass');
+    const passEls = els.filter((e, i) => data[i].type === 'pass');
+    const passStart = (cardEls.length - 1) * peek + h + 28;
+    const total = passEls.length ? passStart + (passEls.length - 1) * peek + h + 60 : (cardEls.length - 1) * peek + h + 60;
+    spacer.style.height = total + 'px';
+    const st = stack.scrollTop;
+    const bottom = st + stack.clientHeight - 64;
+    if (selected) {
+      detail.style.top = (st + h + 20) + 'px';
+      detail.style.height = (stack.clientHeight - h - 20) + 'px';
+    }
     els.forEach((c, i) => {
       let y, s = 1, z = i + 1, delay = 0;
       if (selected === null) {
-        y = i * peek;
+        const pi = passEls.indexOf(c);
+        y = pi < 0 ? cardEls.indexOf(c) * peek : passStart + pi * peek;
         delay = (els.length - 1 - i) * 30;
       } else if (c === selected) {
-        y = 0; z = 100;
+        y = st; z = 100;
       } else {
         const rest = els.filter(x => x !== selected).indexOf(c);
         y = bottom + Math.min(rest, 4) * 9;
         s = 0.92 + Math.min(rest, 4) * 0.02;
-        delay = rest * 30;
+        delay = Math.min(rest, 6) * 30;
       }
       c.style.zIndex = z;
       c.style.transitionDelay = delay + 'ms';
@@ -285,7 +349,19 @@
     if (!animate) { void stack.offsetWidth; els.forEach(c => c.style.transition = ''); }
   }
 
+  function renderPass(c) {
+    const f = (k, v) => '<div><small>' + k + '</small><b>' + esc(v) + '</b></div>';
+    detail.innerHTML = '<div class="meta"><div><small>Bulldog Airways · ' + c.flight + '</small><span class="bal">' + c.from[0] + ' → ' + c.to[0] + '</span></div>'
+      + '<small style="text-align:right">' + c.date + '<br>' + c.dur + '</small></div>'
+      + '<div class="qrbox">' + qrSVG(c.flight + c.seat) + '<small>' + c.flight + ' · SITZ ' + c.seat + ' · ' + c.cls.toUpperCase() + '</small></div>'
+      + '<div class="info">' + f('Abflug', c.from[1] + ' ' + c.dep) + f('Ankunft', c.to[1] + ' ' + c.arr) + f('Terminal', c.term) + f('Gate', c.gate)
+      + f('Boarding', c.board) + f('Sitz', c.seat) + f('Klasse', c.cls + ' Class') + f('Gepäck', c.bag) + f('Lounge', c.lounge) + f('Passagier', c.pax) + '</div>'
+      + '<div class="actions" style="margin-top:16px"><button data-act="back" style="grid-column:1/-1">Fertig</button></div>';
+    detail.scrollTop = 0;
+  }
+
   function renderDetail(c) {
+    if (c.type === 'pass') return renderPass(c);
     let h = '<div class="meta"><div><small>' + esc(c.name) + (c.num ? ' ' + c.num : '') + '</small><span class="bal">'
           + money(c.balance) + '</span></div>'
           + '<small style="text-align:right">' + esc(c.label) + '<br>' + esc(c.side[0]) + ': ' + esc(c.side[1]) + '</small></div>'
